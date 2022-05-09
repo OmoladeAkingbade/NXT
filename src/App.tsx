@@ -1,11 +1,9 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import People from './components/People'
 
 function App() {
   return (
     <div className="App">
-      <h1>Namatse World!</h1>
+     <People />
     </div>
   );
 }
