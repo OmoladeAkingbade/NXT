@@ -7,7 +7,7 @@ import {
   useAsyncDebounce,
 } from 'react-table';
 import { columns } from './columns';
-import GlobalFilter from './GlobalFilter';
+import GlobalFilter from './globalFilter';
 import {
   BodyTRStyle,
   HeadStyle,
