@@ -1,10 +1,9 @@
-// import People from './components/People'
-import Table from './components/Table'
+import Table from './components/Table';
 
 function App() {
   return (
     <div className="App">
-     <Table /> 
+      <Table />
     </div>
   );
 }

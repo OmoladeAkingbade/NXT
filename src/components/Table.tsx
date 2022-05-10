@@ -1,127 +1,152 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import axios from 'axios';
-import { useTable, useFilters, useGlobalFilter, useAsyncDebounce } from 'react-table'
+import {
+  useTable,
+  useFilters,
+  useGlobalFilter,
+  useAsyncDebounce,
+} from 'react-table';
 import { columns } from './columns';
 import GlobalFilter from './GlobalFilter';
-
+import {
+  BodyTRStyle,
+  HeadStyle,
+  HeadTRStyle,
+  TableStyle,
+  TDStyle,
+  THStyle,
+} from './styledComponents/style';
 
 const Table: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [canNextPage, setCanNextPage] = useState<boolean>(false);
   const [canPreviousPage, setCanPreviousPage] = useState<boolean>(true);
-  const [totalPage, setTotalPage] = useState<number>(1)
-  const [dataPage, setDataPage] = useState<number>(1)
+  const [totalPage, setTotalPage] = useState<number>(1);
+  const [dataPage, setDataPage] = useState<number>(1);
   const [data, setData] = useState<any>([{}]);
-  const [error, setError] = useState<boolean>(false)
+  const [error, setError] = useState<boolean>(false);
 
   const fetchData = async () => {
-    try{
-        const { data:{results, count} } = await axios.get(`https://swapi.dev/api/planets/?page=${dataPage}`);
-        let pagesTotal =  Math.round(count / results.length)
-        setData(results);
-        setTotalPage(pagesTotal)
-        setLoading(false)
-        setError(false)
-    }catch(err){
-        setError(true)
+    try {
+      setLoading(true);
+      const {
+        data: { results, count },
+      } = await axios.get(`https://swapi.dev/api/planets/?page=${dataPage}`);
+      let pagesTotal = Math.round(count / results.length);
+      setData(results);
+      setTotalPage(pagesTotal);
+      setLoading(false);
+      setError(false);
+    } catch (err) {
+      setError(false);
+      setError(true);
     }
   };
-  useEffect(()=> {
-    fetchData()
-}, [dataPage])
+  useEffect(() => {
+    fetchData();
+  }, [dataPage]);
 
-const {getTableProps, getTableBodyProps, headerGroups, footerGroups, rows, prepareRow, previousPage, pageCount, state, setGlobalFilter } = useTable({columns, data}, useFilters, useGlobalFilter)
+  const {
+    getTableProps,
+    getTableBodyProps,
+    headerGroups,
+    footerGroups,
+    rows,
+    prepareRow,
+    state,
+    setGlobalFilter,
+  } = useTable({ columns, data }, useFilters, useGlobalFilter);
 
-const {globalFilter} = state
+  const { globalFilter } = state;
 
-console.log(globalFilter)
+  if (loading) return <p>Loading Data...</p>;
 
-if(loading) return <p>Loading Data...</p>
- 
-if(error) return <p>Data cannot be fetched. Try again</p>
+  if (error) return <p>Data cannot be fetched. Try again</p>;
 
   const handleNextPage = () => {
-      if(dataPage === totalPage){
-          setCanNextPage(true)
-          setDataPage(totalPage)
-      }else {
-          setCanPreviousPage(false)
-          setDataPage(dataPage + 1)
-      }
-  }
+    if (dataPage === totalPage) {
+      setCanNextPage(true);
+      setDataPage(totalPage);
+    } else {
+      setCanPreviousPage(false);
+      setDataPage(dataPage + 1);
+    }
+  };
 
   const handlePreviousPage = () => {
-    if(dataPage !== 1){
-        setCanPreviousPage(true)
-        setDataPage(dataPage)
-    }else {
-        setDataPage(dataPage - 1)
-    }
-}
-  return(
+    setDataPage(dataPage - 1);
+  };
+  return (
     <>
-    <GlobalFilter filter={globalFilter} setFilter={setGlobalFilter} />
-    <table {...getTableProps()}>
-      <thead>
-        {headerGroups.map((headerGroup: any) => (
-          <tr {...headerGroup.getHeaderGroupProps()}>
-            {headerGroup.headers.map((column:any) => (
-              <th {...column.getHeaderProps()}>{column.render('Header')}</th>
-            ))}
-          </tr>
-        ))}
-      </thead>
-      <tbody {...getTableBodyProps()}>
-        {rows.map((row:any)=> {
-          prepareRow(row)
-          return (
-            <tr {...row.getRowProps()}> {row.cells.map((cell:any) => {
-                return <td {...cell.getCellProps()}>{cell.render('Cell')}</td>
-              })}
+      <div style={{ margin: '20px' }}>
+        <GlobalFilter filter={globalFilter} setFilter={setGlobalFilter} />
+      </div>
+      <TableStyle {...getTableProps()}>
+        <HeadStyle>
+          {headerGroups.map((headerGroup: any) => (
+            <HeadTRStyle {...headerGroup.getHeaderGroupProps()}>
+              {headerGroup.headers.map((column: any) => (
+                <THStyle {...column.getHeaderProps()}>
+                  {column.render('Header')}
+                </THStyle>
+              ))}
+            </HeadTRStyle>
+          ))}
+        </HeadStyle>
+        <tbody {...getTableBodyProps()}>
+          {rows.map((row: any) => {
+            prepareRow(row);
+            return (
+              <BodyTRStyle {...row.getRowProps()}>
+                {' '}
+                {row.cells.map((cell: any) => {
+                  return (
+                    <TDStyle {...cell.getCellProps()}>
+                      {cell.render('Cell')}
+                    </TDStyle>
+                  );
+                })}
+              </BodyTRStyle>
+            );
+          })}
+        </tbody>
+        <tfoot>
+          {footerGroups.map((footerGroup: any) => (
+            <tr {...footerGroup.getFooterGroupProps()}>
+              {footerGroup.headers.map((column: any) => (
+                <td {...column.getFooterProps()}>{column.render('Footer')}</td>
+              ))}
             </tr>
-          )
-        })}
-      </tbody>
-      <tfoot>
-        {footerGroups.map((footerGroup:any) => (
-          <tr {...footerGroup.getFooterGroupProps()}>
-            {footerGroup.headers.map((column:any) => (
-              <td {...column.getFooterProps()}>{column.render('Footer')}</td>
-            ))}
-          </tr>
-        ))}
-      </tfoot>
-    </table>
-    <div>
-        <button onClick={handlePreviousPage} disabled={canPreviousPage}>
+          ))}
+        </tfoot>
+      </TableStyle>
+      <div style={{ marginTop: '25px' }}>
+        <button onClick={handlePreviousPage} disabled={dataPage === 1}>
           Previous
         </button>{' '}
+        {Array.from(Array(totalPage).keys()).map((num) => (
+          <button
+            disabled={dataPage === num + 1}
+            onClick={() => {
+              setDataPage(num + 1);
+            }}
+            style={{ marginRight: '10px' }}
+          >
+            {num + 1}
+          </button>
+        ))}
         <button onClick={handleNextPage} disabled={canNextPage}>
           Next
         </button>{' '}
-        <span>
+        <span style={{ marginTop: '20px' }}>
           Page{' '}
           <strong>
-                {dataPage} of {totalPage}
+            {dataPage} of {totalPage}
           </strong>{' '}
         </span>
-        <span>
-          | Go to page:{' '}
-          <input
-            type='number'
-            defaultValue={1}
-            onChange={e => {
-              const pageNumber = e.target.value ? Number(e.target.value) : 1
-              setDataPage(pageNumber)
-            }}
-            style={{ width: '50px' }}
-          />
-        </span>{' '}
       </div>
-  </>
-  )
-  
+    </>
+  );
 };
 
 export default Table;
-
