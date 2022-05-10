@@ -1,10 +1,10 @@
-import React, { useMemo, useState, useEffect } from 'react';
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import React, {  useState, useEffect } from 'react';
 import axios from 'axios';
 import {
   useTable,
   useFilters,
   useGlobalFilter,
-  useAsyncDebounce,
 } from 'react-table';
 import { columns } from './columns';
 import GlobalFilter from './globalFilter';
@@ -44,6 +44,7 @@ const Table: React.FC = () => {
   };
   useEffect(() => {
     fetchData();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dataPage]);
 
   const {
